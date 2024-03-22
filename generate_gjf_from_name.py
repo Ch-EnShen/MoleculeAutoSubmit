@@ -1,3 +1,6 @@
+import os
+import sys
+import shutil
 import pubchempy as pcp
 from urllib.request import urlopen
 from urllib.parse import quote
@@ -69,13 +72,13 @@ def gjf_name(
 def SMILES2gjf(
     SMILES: str, 
     mol_name: str,
+    functional: str,
     memory: int = 192,
     nprocshared: int = 32,
     state: str = "s0",
     calculation_options: list = ["opt", "freq"],
-    functional: str = "b3lyp",
-    basis: str = "6-31g++(d,p)"
-) -> None:
+    basis: str = "6-31++g(2d,2p)"
+) -> str:
     
     """ Generate gjf file from SMILES """
     mol_name = mol_name.replace(" ", "_")
@@ -106,23 +109,28 @@ def SMILES2gjf(
         ### start ###
         with open(output_file_name, 'r') as f:
             lines = f.readlines()
-        new_content = f"{mol_name}/{state}\n\n" + "  0  1"
+        new_content = f"{mol_name} {state}\n\n" + "  0  1"
         lines[6 - 1] = new_content
         with open(output_file_name, 'w') as f:
             f.writelines(lines)
         ### end ###
         
         print(f"Conversion successful. Gaussian input file '{mol_name}' generated.")
+        return output_file_name
     else:
         raise ValueError(f"Error for molecule {mol_name}: \
                            Unable to convert SMILES to molecule object in RDkit.")
 
-def name2gjf(compound_name:str):
+def name2gjf(compound_name:str, functional:str) -> None:
     """ Generate gjf file from compound name """
-    SMILES2gjf(
-        SMILES=name2SMILES(compound_name), mol_name=compound_name)
     
-    return None
+    output_file_name = SMILES2gjf(
+        SMILES=name2SMILES(compound_name), 
+        mol_name=compound_name,
+        functional=functional
+    )
+    
+    return output_file_name
 
 if __name__ == "__main__":
     """ testing
@@ -130,7 +138,16 @@ if __name__ == "__main__":
     for name in names:
         name2gjf(name)
     """
-    names = ['9-cyano-anthracene']
-    for name in names:
-        name2gjf(name)
-    # names = sys.argv[1:]
+    compound_name = sys.argv[1]
+    functional = sys.argv[2]
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    output_file_name = name2gjf(compound_name, functional)
+    molecule_path = f"{current_path}/{compound_name}"
+    # overwrite the folder
+    if os.path.exists(molecule_path):
+        shutil.rmtree(molecule_path)
+        os.mkdir(molecule_path)
+    else:
+        os.mkdir(molecule_path)
+    shutil.move(output_file_name, f"{current_path}/{compound_name}/")
+    
