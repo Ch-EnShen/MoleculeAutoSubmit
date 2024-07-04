@@ -121,12 +121,12 @@ def SMILES2gjf(
         raise ValueError(f"Error for molecule {mol_name}: \
                            Unable to convert SMILES to molecule object in RDkit.")
 
-def name2gjf(compound_name:str, functional:str) -> None:
+def name2gjf(compound_name:str, functional:str) -> str:
     """ Generate gjf file from compound name """
-    
+    cleaned_compound_name = compound_name.replace(",", "").replace("[", "").replace("]", "")
     output_file_name = SMILES2gjf(
         SMILES=name2SMILES(compound_name), 
-        mol_name=compound_name,
+        mol_name=cleaned_compound_name,
         functional=functional
     )
     
@@ -139,15 +139,18 @@ if __name__ == "__main__":
         name2gjf(name)
     """
     compound_name = sys.argv[1]
+    cleaned_compound_name = compound_name.replace(",", "").replace("[", "").replace("]", "")
     functional = sys.argv[2]
     current_path = os.path.dirname(os.path.abspath(__file__))
     output_file_name = name2gjf(compound_name, functional)
-    molecule_path = f"{current_path}/{compound_name}"
+    molecule_path = f"{current_path}/{cleaned_compound_name}_{functional}/"
     # overwrite the folder
     if os.path.exists(molecule_path):
         shutil.rmtree(molecule_path)
         os.mkdir(molecule_path)
     else:
         os.mkdir(molecule_path)
-    shutil.move(output_file_name, f"{current_path}/{compound_name}/")
+    
+    # shutil.move(output_file_name, f"{current_path}/{compound_name}_{functional}/")
+    shutil.move(output_file_name, molecule_path)
     
