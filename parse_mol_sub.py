@@ -111,15 +111,15 @@ def write_in_gjf_s1(log_filename:str, s0_gjf_filename:str, molecule_name:str):
     s0_gjf.close()
     return 
 
-def write_in_gjf(input_log_filename:str, input_gjf_filename:str, molecule_name:str, functional:str, calc_type:str):
+def write_in_gjf(input_log_filename:str, input_gjf_filename:str, molecule_name:str, calc_type:str):
     current_dir = os.getcwd()
-    target_geometry_coordinate = parse_log(current_dir + f"/{molecule_name}_{functional}/{input_log_filename}")
+    target_geometry_coordinate = parse_log(current_dir + f"/{molecule_name}/{input_log_filename}")
     
     output_gjf_filename = input_gjf_filename.replace("s0", "s1") if calc_type == "opt-freq" else input_gjf_filename.replace("opt-freq", "nacme").replace("s0", "s1")
-    output_gjf = Path(current_dir + f"/{molecule_name}_{functional}/{output_gjf_filename}")
+    output_gjf = Path(current_dir + f"/{molecule_name}/{output_gjf_filename}")
     output_gjf.touch(exist_ok = True)
     
-    input_gjf = open(current_dir + f"/{molecule_name}_{functional}/{input_gjf_filename}", 'r')
+    input_gjf = open(current_dir + f"/{molecule_name}/{input_gjf_filename}", 'r')
     input_gjf_list = input_gjf.readlines()
     with open(output_gjf, 'w') as f:
         for i in range(8):

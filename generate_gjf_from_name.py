@@ -143,7 +143,7 @@ if __name__ == "__main__":
     functional = sys.argv[2]
     current_path = os.path.dirname(os.path.abspath(__file__))
     output_file_name = name2gjf(compound_name, functional)
-    molecule_path = f"{current_path}/{cleaned_compound_name}_{functional}/"
+    molecule_path = f"{current_path}/{cleaned_compound_name}/"
     # overwrite the folder
     if os.path.exists(molecule_path):
         shutil.rmtree(molecule_path)
